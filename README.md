@@ -1,7 +1,11 @@
 # CRL-2025-MAS
+## Multi-atlas segmentation using the CRL2025 Atlas
+This repository contains scripts and extra CRKIT tools used for a Fetal T2W reconstruction pipeline. By default, this pipeline uses the CRL2025 T2W Atlas as reference images to perform multi-atlas segmentation (MAS).<br>
+ANTs[^ANTS] is used to perform non-rigid registrations of template to target images before segmentation.<br>
+Segmentation[^STAPLE] is performed using Probabilistic GMM STAPLE available in the Computational Radiology Lab Toolkit, CRKIT.
 
-# Multi-atlas segmnetation (MAS) pipeline script usage
-* First, rigidly register T2-weighted reconstructions to CRL atlas space with your registration tool of choice.
+## Pipeline script usage
+* First rigidly register T2-weighted reconstructions to CRL atlas space with your registration tool of choice.
 
 Command:
 `sh MAS-pipeline.sh [Imagelist] [OutputDir] [MaxThreads]`<br>
@@ -17,16 +21,19 @@ Command:
    seg: Output segmentations<br>
    calc: If available, crosses tissue and regional segmentation to attempt a parcellated tissue segmentation<br>
 
-# Modifying atlas images
+## Modifying atlas images
 You can swap or add atlas images to the atlas directory specified at the top of `MAS-pipeline.sh`, just make sure the filename of each file ends in `_atlas.nii.gz`.<br>
 The script matches each `_atlas` file with corresponding segmentations, by default these are `tissue`, `tissueWMZ` and `regional`.<br>
 Specify a custom label scheme like `-l YourLabelSuffix`<br>
 You can change the output naming of the segmentation files with `-p YourOutputPrefix`
 
-# CRL Toolkit (CRKit) Download
+## CRL Toolkit (CRKit) Download
 You can download CRKit, including STAPLE and other image maniuplation binaries utilized in these scripts, from NITRC:
 https://www.nitrc.org/projects/staple
 
 There's also a Docker container available with CRKit installed:
 https://github.com/sergeicu/crkit-docker
 Mileage may vary.
+
+[^ANTS]:Symmetric diffeomorphic image registration with cross-correlation: evaluating automated labeling of elderly and neurodegenerative brain. Med Image Anal (2008). https://github.com/ANTsX/ANTs
+[^STAPLE]:Akhondi-Asl, A. and Warfield, S.K., 2013. Simultaneous truth and performance level estimation through fusion of probabilistic segmentations. IEEE transactions on medical imaging, 32(10), pp.1840-1852.
