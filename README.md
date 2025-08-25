@@ -1,5 +1,6 @@
 # CRL-2025-MAS
-![Screenshot of atlas segmentations made using STAPLE multi-atlas segmentation](picture.png)
+<img src="picture.png" alt="Screenshot of atlas segmentations made using STAPLE multi-atlas segmentation" width="300" height="200">
+
 
 ## Multi-atlas segmentation using the CRL2025 Atlas
 This repository contains scripts and extra CRKIT tools used for a Fetal T2W reconstruction pipeline. By default, this pipeline uses the CRL2025 T2W Atlas[^CRL2025] as reference images to perform multi-atlas segmentation (MAS).<br>
