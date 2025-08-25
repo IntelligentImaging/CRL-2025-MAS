@@ -1,4 +1,6 @@
 # CRL-2025-MAS
+![Screenshot of atlas segmentations made using STAPLE multi-atlas segmentation](picture.png)
+
 ## Multi-atlas segmentation using the CRL2025 Atlas
 This repository contains scripts and extra CRKIT tools used for a Fetal T2W reconstruction pipeline. By default, this pipeline uses the CRL2025 T2W Atlas[^CRL2025] as reference images to perform multi-atlas segmentation (MAS).<br>
 ANTs[^ANTS] is used to perform non-rigid registrations of template to target images before segmentation.<br>
@@ -41,9 +43,11 @@ These files are published under CC0 1.0 (public domain): https://creativecommons
 Files in or referenced in this repository were developed for research purposes and are not intended for medical or diagnostic use and have no warranty. The authors and distributors do not make any guarantees regarding the accuracy or usefulness of results generated from these tools or their derivatives, and are not liable for any damages resulting from their use.<br>
 
 If you find these scripts and/or the CRL2025 atlas useful, please cite (publication pending)[^CRL2025]<br>
-If you utilize Probabilistic GMM STAPLE, please cite Akhondi-Asl et al[^STAPLE].<br>
+If you utilize Probabilistic GMM STAPLE, please cite CRKit and Akhondi-Asl et al[^STAPLE].<br>
 Please cite ANTs the ANTs toolkit is used for image registration[^ANTS].<br>
+3D rendering created using ITK-SNAP[^SNAP].
 
 [^CRL2025]:https://doi.org/10.7910/DVN/QOO75G
 [^ANTS]:Symmetric diffeomorphic image registration with cross-correlation: evaluating automated labeling of elderly and neurodegenerative brain. Med Image Anal (2008). https://github.com/ANTsX/ANTs
 [^STAPLE]:Akhondi-Asl, A. and Warfield, S.K., 2013. Simultaneous truth and performance level estimation through fusion of probabilistic segmentations. IEEE transactions on medical imaging, 32(10), pp.1840-1852.
+[^SNAP]:https://www.itksnap.org/pmwiki/pmwiki.php
