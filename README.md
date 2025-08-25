@@ -45,7 +45,7 @@ Files in or referenced in this repository were developed for research purposes a
 
 If you find these scripts and/or the CRL2025 atlas useful, please cite (publication pending)[^CRL2025]<br>
 If you utilize Probabilistic GMM STAPLE, please cite CRKit and Akhondi-Asl et al[^STAPLE].<br>
-Please cite ANTs the ANTs toolkit is used for image registration[^ANTS].<br>
+Please cite ANTs if the ANTs toolkit is used for image registration[^ANTS].<br>
 3D rendering created using ITK-SNAP[^SNAP].
 
 [^CRL2025]:https://doi.org/10.7910/DVN/QOO75G
