@@ -1,0 +1,17 @@
+t2w/t2w_GA21_atlas.nii.gz 21
+t2w/t2w_GA22_atlas.nii.gz 22
+t2w/t2w_GA23_atlas.nii.gz 23
+t2w/t2w_GA24_atlas.nii.gz 24
+t2w/t2w_GA25_atlas.nii.gz 25
+t2w/t2w_GA26_atlas.nii.gz 26
+t2w/t2w_GA27_atlas.nii.gz 27
+t2w/t2w_GA28_atlas.nii.gz 28
+t2w/t2w_GA29_atlas.nii.gz 29
+t2w/t2w_GA30_atlas.nii.gz 30
+t2w/t2w_GA31_atlas.nii.gz 31
+t2w/t2w_GA32_atlas.nii.gz 32
+t2w/t2w_GA33_atlas.nii.gz 33
+t2w/t2w_GA34_atlas.nii.gz 34
+t2w/t2w_GA35_atlas.nii.gz 35
+t2w/t2w_GA36_atlas.nii.gz 36
+t2w/t2w_GA37_atlas.nii.gz 37
