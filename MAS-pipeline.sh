@@ -38,7 +38,6 @@ AllLabs="tissue tissueWMZ regional"
 # You can disable this setting if you only want the registrations to happen
 segmentation="ON"                       
 # # # # # # # # # # # # # # # # # # # # #
-PartialVolumeCorrection="ON"
 LCP="112" # Cortical plate label used to test PVC output behavior
 # # # # # # # # # # # # # # # # # # # # #
 
@@ -102,6 +101,9 @@ while :; do
             else
                 die 'error: "-p" requires prefix be specified'
             fi
+            ;;
+        --noPVC
+            PartialVolumeCorrection="OFF"
             ;;
         --) # end of optionals
             shift
@@ -185,6 +187,11 @@ re='^[0-9]+$'
 if ! [[ $NThreads =~ $re && $NThreads -ne 0 ]] ; then
     echo "error: argument six (MaxThreads) was not a natural number." >&2; exit 1
 fi
+
+# By default, partial volume correction is enabled. Use --noPVC to disable.
+if [[ ! -n "$PartialVolumeCorrection" ]] ; then
+    $PartialVolumeCorrection="ON"
+fi
 # # # Finished checking arguments and variables # # #
 
 # # # Case directory setups begin # # # 
@@ -212,7 +219,7 @@ fi
 # Check dependencies
 depchk ANTS
 depchk $SEG
-depchk $PVC
+if [[ $PartialVolumeCorrection == "ON" ]] ; then depchk $PVC ; fi
 depchk $VOL
 depchk $MATH
 
