@@ -547,9 +547,9 @@ while read line; do
             CPparc="${calc}/CPparc.nii.gz"
             parcOUT="${calc}/${sub}"
             # Create CP mask from GEPZ
-            ${FETALSOFT}/crkit/bin/crlRelabelImages $parc $parc "112 113" "1 1" ${CPmask} 0
+            ${CRKIT}/bin/crlRelabelImages $parc $parc "112 113" "1 1" ${CPmask} 0
             # Create no-CP seg from GEPZ
-            ${FETALSOFT}/crkit/bin/crlRelabelImages $parc $parc "112 113" "0 0" ${CPnone}
+            ${CRKIT}/bin/crlRelabelImages $parc $parc "112 113" "0 0" ${CPnone}
             # Multiply region by CP
             $MATH ${CPmask} multiply $REGION ${CPparc}
             # Add parcellated CP back to full segmentation
