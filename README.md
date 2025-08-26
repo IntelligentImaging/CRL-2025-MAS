@@ -3,7 +3,7 @@
 
 
 ## Multi-atlas segmentation using the CRL2025 Atlas
-This repository contains scripts and extra CRKIT tools used for a Fetal T2W reconstruction pipeline. By default, this pipeline uses the CRL2025 T2W Atlas[^CRL2025] as reference images to perform multi-atlas segmentation (MAS).<br>
+This repository contains scripts and extra CRKIT tools used for fetal T2W reconstructed image segmentation. By default, this pipeline uses the CRL2025 T2W Atlas[^CRL2025] as reference images to perform multi-atlas segmentation (MAS).<br>
 ANTs[^ANTS] is used to perform non-rigid registrations of template to target images before segmentation.<br>
 Segmentation[^STAPLE] is performed using Probabilistic GMM STAPLE available in the Computational Radiology Lab Toolkit, CRKIT.
 
