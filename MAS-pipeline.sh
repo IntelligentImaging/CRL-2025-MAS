@@ -15,19 +15,16 @@
 
 shopt -s extglob
 
-# Binary/program directories
-# Set env variables
-#export FETALREF=/PATH/TO/CRL2025Atlas
-export FETALREF=/home/ch162835/work/CRL2025Atlas
-#export CRKIT=/PATH/TO/CRKIT
-export CRKIT=/home/ch162835/fetalmri/software/crkit
+# Binary and atlas locations
+export FETALREF=/PATH/TO/CRL2025Atlas
+export CRKIT=/PATH/TO/crkit
 
 # Default STA atlas list, found in this repository # # # # # # # # # 
 REPO=`dirname $0`
 tlist="${REPO}/tlist.txt"
 # You can add additional atlas reference images to this list
 
-# # # PREFIXES OF DEFAULT ATLAS LABELS # #
+# # # SUFFIXES OF DEFAULT ATLAS LABELS # #
 # Tissue = standard tissue seg
 # tissueWMZ = with subplate and intermediate zone, normally only used for GA < 32 weeks
 # region = regional segmentation (cortical parcellation)
