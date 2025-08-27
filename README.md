@@ -25,18 +25,18 @@ Command:
    calc: If available, crosses tissue and regional segmentation to attempt a parcellated tissue segmentation<br>
 
 ## Modifying atlas images
-You can swap or add atlas images to the atlas directory specified at the top of `MAS-pipeline.sh`, just make sure the filename of each file ends in `_atlas.nii.gz`.<br>
-The script matches each `_atlas` file with corresponding segmentations, by default these are `tissue`, `tissueWMZ` and `regional`.<br>
+You can swap or add atlas images to the atlas directory specified in `config.sh`, just make sure the filename of each file ends in `_atlas.nii.gz`.<br>
+The script matches each `_atlas` file with corresponding segmentations, by default these are named `tissue`, `tissueWMZ` and `regional`.<br>
 Specify a custom label scheme like `-l YourLabelSuffix`<br>
 You can change the output naming of the segmentation files with `-p YourOutputPrefix`
 
 ## CRL Toolkit (CRKit) Download
-You can download CRKit, including STAPLE and other image maniuplation binaries utilized in these scripts, from NITRC:
+Download CRKit, including STAPLE and other image maniuplation binaries utilized in these scripts, from NITRC:
 https://www.nitrc.org/projects/staple
 
 There's also a Docker container available with CRKit installed:
 https://github.com/sergeicu/crkit-docker
-Mileage may vary; this container may need to be modified for all relevant binaries to compile properly
+Your mileage may vary; in its current state not all relevant binaries compile properly
 
 ## License/Data Use Agreement
 These files are published under CC0 1.0 (public domain): https://creativecommons.org/publicdomain/zero/1.0/<br>
