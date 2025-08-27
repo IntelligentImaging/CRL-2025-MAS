@@ -15,28 +15,11 @@
 
 shopt -s extglob
 
-# Binary and atlas locations
-export FETALREF=/PATH/TO/CRL2025Atlas
-export CRKIT=/PATH/TO/crkit
-
-# Default STA atlas list, found in this repository # # # # # # # # # 
+# Default STA atlas list and config file found in this repository # # # # # # # # # 
 REPO=`dirname $0`
-tlist="${REPO}/tlist.txt"
-# You can add additional atlas reference images to this list
 
-# # # SUFFIXES OF DEFAULT ATLAS LABELS # #
-# Tissue = standard tissue seg
-# tissueWMZ = with subplate and intermediate zone, normally only used for GA < 32 weeks
-# region = regional segmentation (cortical parcellation)
-AllLabs="tissue tissueWMZ regional"
-# # # # # # # # # # # # # # # # # # # # # #
-
-# # # Set segmentation to ON or OFF # # #
-# You can disable this setting if you only want the registrations to happen
-segmentation="ON"                       
-# # # # # # # # # # # # # # # # # # # # #
-LCP="112" # Cortical plate label used to test PVC output behavior
-# # # # # # # # # # # # # # # # # # # # #
+# Check config first - specifies atlas images, binary location, and user settings
+source ${REPO}/config.sh
 
 # Arguments and help message
 show_help () {
@@ -99,7 +82,7 @@ while :; do
                 die 'error: "-p" requires prefix be specified'
             fi
             ;;
-        --noPVC
+        --noPVC)
             PartialVolumeCorrection="OFF"
             ;;
         --) # end of optionals
@@ -187,7 +170,7 @@ fi
 
 # By default, partial volume correction is enabled. Use --noPVC to disable.
 if [[ ! -n "$PartialVolumeCorrection" ]] ; then
-    $PartialVolumeCorrection="ON"
+    PartialVolumeCorrection="ON"
 fi
 # # # Finished checking arguments and variables # # #
 
@@ -200,11 +183,6 @@ mkdir -pv "$tools"
 cp $0 -v --update=none ${tools}/seg.sh # make a copy of this script
 cp ${tlist} -v ${tools}/ # copy the input template list
 
-source ${CRKIT}/bin/crkit-env.sh
-SEG="${CRKIT}/bin/crlProbabilisticGMMSTAPLE" # STAPLE binary
-MATH="${CRKIT}/bin/crlImageAlgebra" # Used for parcellating cortical plate
-PVC="${REPO}/bin/crlCorrectFetalPartialVoluming" # Partial Volume Correction binary
-VOL="${REPO}/bin/crlComputeVolume" # Used for checking PVC output
 baseTLIST=`basename $tlist`
 TLIST="${tools}/${baseTLIST}"
 
@@ -462,7 +440,7 @@ for lsuffix in $AllLabs ; do
 
             # Check conditions to run PVC
             if [[ ${PartialVolumeCorrection} = "ON" ]] ; then
-                if [[ ! ${OutPVC} == *"GEPZ"* ]] ; then
+                if [[ ! ${OutPVC} == *"tissue"* ]] ; then
                     echo "Not a WM/GM tissue segmentation. Skipping PVC"
                     echo ""
                     continue
@@ -529,16 +507,17 @@ while read line; do
     # Output dir for calculations
     calc="${outdir}/${name}/calc"
     mkdir -pv $calc
-    # Check that we have a GEPZ seg and a region seg
-    GEPZ="${outdir}/${name}/PVC/MAS-GEPZ-pvc_${name}.nii.gz"
-    REGION="${outdir}/${name}/seg/MAS-region_${name}.nii.gz"
-    if [[ -f "${GEPZ}" && -f "${REGION}" ]] ; then
-        pvcs=`find ${outdir}/${name}/PVC/ -type f -name \*-GEPZ\*pvc_${name}.nii.gz`
-        echo "These CP's will be parcellated: ${pvcs}"
-        for parc in $pvcs ; do 
-            echo "Parcellate GEPZ segs using Region seg"
+    # Check that we have a tissue seg and a region seg
+    TISSUE=`find ${outdir}/${name}/PVC/ -iname \*tissue-pvc_${name}.nii.gz | head -n1`
+    TISSUEWMZ=`find ${outdir}/${name}/PVC/ -iname \*tissueWMZ-pvc_${name}.nii.gz | head -n1`
+    REGION=`find ${outdir}/${name}/seg/ -iname \*regional_${name}.nii.gz | head -n1`
+    TISSUES="$TISSUE $TISSUEWMZ"
+    if [[ -n "${TISSUES}" && -f "${REGION}" ]] ; then
+        echo "These CP's will be parcellated: ${TISSUES}"
+        for parc in $TISSUES ; do 
+            echo "Parcellate tissue segs using regional seg"
             parcbase=`basename $parc`
-            sub=`echo $parcbase | sed 's,MAS-GEPZ\(.*-pvc\),MAS-GEPZ\1-ParCP,'`
+            sub=`echo $parcbase | sed 's,\(tissue.*pvc\),par_\1,'`
             CPmask="${calc}/CPmask.nii.gz"
             CPnone="${calc}/CPnone.nii.gz"
             CPparc="${calc}/CPparc.nii.gz"
