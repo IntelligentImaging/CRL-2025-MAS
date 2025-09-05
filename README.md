@@ -7,7 +7,12 @@ This repository contains scripts and extra CRKIT tools used for fetal T2W recons
 ANTs[^ANTS] is used to perform non-rigid registrations of template to target images before segmentation.<br>
 Segmentation[^STAPLE] is performed using Probabilistic GMM STAPLE available in the Computational Radiology Lab Toolkit, CRKIT.
 
-## Pipeline script usage
+
+### Dependencies
+* CRKIT: https://www.nitrc.org/projects/staple
+* ANTs[^ANTS] 
+
+### Pipeline script usage
 * First rigidly register T2-weighted reconstructions to CRL atlas space with your registration tool of choice.
 
 Command:
@@ -24,13 +29,13 @@ Command:
    seg: Output segmentations<br>
    calc: If available, crosses tissue and regional segmentation to attempt a parcellated tissue segmentation<br>
 
-## Modifying atlas images
+### Modifying atlas images
 You can swap or add atlas images to the atlas directory specified in `config.sh`, just make sure the filename of each file ends in `_atlas.nii.gz`.<br>
 The script matches each `_atlas` file with corresponding segmentations, by default these are named `tissue`, `tissueWMZ` and `regional`.<br>
 Specify a custom label scheme like `-l YourLabelSuffix`<br>
 You can change the output naming of the segmentation files with `-p YourOutputPrefix`
 
-## CRL Toolkit (CRKit) Download
+### CRL Toolkit (CRKit) Download
 Download CRKit, including STAPLE and other image maniuplation binaries utilized in these scripts, from NITRC:
 https://www.nitrc.org/projects/staple
 
@@ -38,17 +43,17 @@ There's also a Docker container available with CRKit installed:
 https://github.com/sergeicu/crkit-docker
 Your mileage may vary; in its current state not all relevant binaries compile properly
 
-## License/Data Use Agreement
-These files are published under CC0 1.0 (public domain): https://creativecommons.org/publicdomain/zero/1.0/<br>
+### License/Data Use Agreement
+These files are published under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/<br>
 
 Files in or referenced in this repository were developed for research purposes and are not intended for medical or diagnostic use and have no warranty. The authors and distributors do not make any guarantees regarding the accuracy or usefulness of results generated from these tools or their derivatives, and are not liable for any damages resulting from their use.<br>
 
-If you find these scripts and/or the CRL2025 atlas useful, please cite (publication pending)[^CRL2025]<br>
+When making use of this work, based on the data use agreement you are required to cite the noted publication with its associated DOI link.[^CRL2025]<br>
 If you utilize Probabilistic GMM STAPLE, please cite CRKit and Akhondi-Asl et al[^STAPLE].<br>
 Please cite ANTs if the ANTs toolkit is used for image registration[^ANTS].<br>
 3D rendering created using ITK-SNAP[^SNAP].
 
-[^CRL2025]:https://doi.org/10.7910/DVN/QOO75G
+[^CRL2025]:Bagheri, M., Velasco-Annis, C., Wang, J., Faghihpirayesh, R., Khan, S., Calixto, C., Jaimes, C., Vasung, L., Ouaalam, A., Afacan, O. and Warfield, S.K., 2025. An MRI Atlas of the Human Fetal Brain: Reference and Segmentation Tools for Fetal Brain MRI Analysis. arXiv preprint arXiv:2508.15034. https://doi.org/10.7910/DVN/QOO75G
 [^ANTS]:Symmetric diffeomorphic image registration with cross-correlation: evaluating automated labeling of elderly and neurodegenerative brain. Med Image Anal (2008). https://github.com/ANTsX/ANTs
 [^STAPLE]:Akhondi-Asl, A. and Warfield, S.K., 2013. Simultaneous truth and performance level estimation through fusion of probabilistic segmentations. IEEE transactions on medical imaging, 32(10), pp.1840-1852.
 [^SNAP]:https://www.itksnap.org/pmwiki/pmwiki.php
