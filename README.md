@@ -53,7 +53,7 @@ If you utilize Probabilistic GMM STAPLE, please cite CRKit and Akhondi-Asl et al
 Please cite ANTs if the ANTs toolkit is used for image registration[^ANTS].<br>
 3D rendering created using ITK-SNAP[^SNAP].
 
-[^CRL2025]:Bagheri, M., Velasco-Annis, C., Wang, J., Faghihpirayesh, R., Khan, S., Calixto, C., Jaimes, C., Vasung, L., Ouaalam, A., Afacan, O. and Warfield, S.K., 2025. An MRI Atlas of the Human Fetal Brain: Reference and Segmentation Tools for Fetal Brain MRI Analysis. arXiv preprint arXiv:2508.15034. https://doi.org/10.7910/DVN/QOO75G
-[^ANTS]:Symmetric diffeomorphic image registration with cross-correlation: evaluating automated labeling of elderly and neurodegenerative brain. Med Image Anal (2008). https://github.com/ANTsX/ANTs
+[^CRL2025]:Bagheri, M., Velasco-Annis, C., Wang, J., Faghihpirayesh, R., Khan, S., Calixto, C., Jaimes, C., Vasung, L., Ouaalam, A., Afacan, O., Warfield, S.K., Rollins, C.K., Gholipour, A., 2025. An MRI Atlas of the Human Fetal Brain: Reference and Segmentation Tools for Fetal Brain MRI Analysis. arXiv preprint arXiv:2508.15034. https://doi.org/10.7910/DVN/QOO75G
+[^ANTS]:Avants, B.B., Epstein, C.L., Grossman, M. and Gee, J.C., Symmetric diffeomorphic image registration with cross-correlation: evaluating automated labeling of elderly and neurodegenerative brain. Med Image Anal (2008). https://github.com/ANTsX/ANTs
 [^STAPLE]:Akhondi-Asl, A. and Warfield, S.K., 2013. Simultaneous truth and performance level estimation through fusion of probabilistic segmentations. IEEE transactions on medical imaging, 32(10), pp.1840-1852.
 [^SNAP]:https://www.itksnap.org/pmwiki/pmwiki.php
