@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Binary and atlas locations
-export FETALREF=/home/ch162835/work/dataverse/CRL2025Atlas/t2w
+export CRLMASREF=/path/to/CRL2025Atlas/t2w
 
 # Default template image list
 # You can add additional atlas/reference images to the list

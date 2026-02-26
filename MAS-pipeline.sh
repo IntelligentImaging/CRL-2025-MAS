@@ -26,7 +26,7 @@ show_help () {
 cat << EOF
     ----------------------------------------------------------
     Incorrect arguments supplied!
-    Usage: sh ${0} [-h] [-a AtlasList.txt -l AtlasLabelsPrefix] [-p OutputSegPrefix] -- [Imagelist] [OutputDir] [MaxThreads]
+    Usage: sh ${0} [-h] [-a AtlasList.txt -l AtlasLabelsPrefix] [-p OutputSegPrefix] [-k] -- [Imagelist] [OutputDir] [MaxThreads]
     
         -h      display this help and exit
         -a      supply a structual ATLAS text list, formatted like:
@@ -37,6 +37,7 @@ cat << EOF
                     PATH/t2w_GA31_SUFFIX.nii.gz ...etc
                     (defualt: all three of tissue, tissueWMZ, and regional)
         -p      specify output segmentation prefix (default: mas)
+        -k      Use crkit container for CRL tools
 
         [Imagelist] A text file with a list of input images formatted with one image per row and GA, i.e.
                     PATH/image01.nii.gz 32
@@ -85,6 +86,9 @@ while :; do
         --noPVC)
             PartialVolumeCorrection="OFF"
             ;;
+        -k|--crkit)
+            let CRKITCON=1
+            ;;
         --) # end of optionals
             shift
             break
@@ -121,7 +125,7 @@ function depchk () {
 
 
 
-# If optional atlas labels given, use those instead of the default found in FETALREF
+# If optional atlas labels given, use those instead of the default found in CRLMASREF
 if [[ -n $userlabs ]] ; then
     AllLabs="$userlabs"
 fi
@@ -144,7 +148,7 @@ fi
 # Check that template structural images exist
 CheckTemplates=""
 while read CHECK ; do
-	path=${FETALREF}/`echo $CHECK | awk -F' ' '{ print $1 }'`
+	path=${CRLMASREF}/`echo $CHECK | awk -F' ' '{ print $1 }'`
 	if [[ ! -f $path ]] ; then
 		CheckTemplates="ERROR"
 		echo "error: $path doesn't exist"
@@ -192,7 +196,7 @@ if [ -n $OutputPrefix] ; then
 fi
 
 # Check dependencies
-depchk singularity
+if [[ $CRKITCON = 1 ]] ; then thendepchk singularity ; fi
 
 # Begin 'for loop' for each atlas segmentation scheme
 # default labels are specified at top of script
@@ -257,7 +261,7 @@ for lsuffix in $AllLabs ; do
         while read LINE ; do
             GAtemplate=`echo $LINE | awk -F' ' '{ print $2 }'` # Grab GA of template from TLIST
             casebase=`basename ${image}`
-            PathOfT=${FETALREF}/`echo $LINE | awk -F' ' '{ print $1 }'`
+            PathOfT=${CRLMASREF}/`echo $LINE | awk -F' ' '{ print $1 }'`
             baseT=`basename ${PathOfT}`
             dirT=`dirname ${PathOfT}`
 
@@ -306,8 +310,11 @@ for lsuffix in $AllLabs ; do
                             echo "ANTS register ${ARRAY_T_NAME[$tcount]} to ${name}"
                         # Registration command
                         # This produces the "case123Warp.nii.gz", "case123InverseWarp.nii.gz", and "case123Affine.txt" files
-                        singularity exec docker://antsx/ants:2.5.4 /bin/bash -c "ANTS 3 -m PR[${image}, ${ARRAY_T[$tcount]},1,2] -o ${outdir}/${name}/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -r Gauss[3,0] --affine-metric-type MI -i 100x100x20 -t SyN[0.4]" &
-                        #ANTS 3 -m PR[${image}, ${ARRAY_T[$tcount]},1,2] -o ${outdir}/${name}/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -r Gauss[3,0] --affine-metric-type MI -i 100x100x20 -t SyN[0.4] &
+                        cmd="ANTS 3 -m PR[${image}, ${ARRAY_T[$tcount]},1,2] -o ${outdir}/${name}/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -r Gauss[3,0] --affine-metric-type MI -i 100x100x20 -t SyN[0.4]"
+                        if [[ $CRKITCON = 1 ]] ; then
+                            singularity exec docker://antsx/ants:2.5.4 /bin/bash -c "$cmd" &
+                        else $cmd &
+                        fi
                     else
                         echo "Found transform for ${ARRAY_T_NAME[$tcount]} to ${name}. Skipping..."
                     fi
@@ -332,8 +339,11 @@ for lsuffix in $AllLabs ; do
                     if [[ ! -f "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz ]]; then
                         echo "Applying transform: ${ARRAY_T[$tcount]} to ${name}..."
                         # This produces the warped grayscale e.g. "template123_to_case123.nii.gz"
-                        singularity exec docker://antsx/ants:2.5.4 /bin/bash -c "WarpImageMultiTransform 3 ${ARRAY_T[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Affine.txt" &
-                        #WarpImageMultiTransform 3 ${ARRAY_T[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Affine.txt &
+                        cmd="WarpImageMultiTransform 3 ${ARRAY_T[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Affine.txt"
+                        if [[ $CRKITCON = 1 ]] ; then
+                            singularity exec docker://antsx/ants:2.5.4 /bin/bash -c "$cmd" &
+                        else $cmd &
+                        fi
                     else
                         echo "Atlas has been transformed. Skipping"
                     fi
@@ -357,8 +367,11 @@ for lsuffix in $AllLabs ; do
                     if [[ ! -f "$outdir"/"$name"/template_rT/r${ARRAY_S_NAME[$tcount]}_to_${name}.nii.gz && -f "${ARRAY_S[$tcount]}" ]]; then
                         echo "Transforming ${ARRAY_S[$tcount]} to ${name}"
                         # This produces the warped parcellation e.g. "template123parc_to_case123.nii.gz"
-                        singularity exec docker://antsx/ants:2.5.4 /bin/bash -c "WarpImageMultiTransform 3 ${ARRAY_S[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_S_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Affine.txt --use-NN" &
-                        #WarpImageMultiTransform 3 ${ARRAY_S[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_S_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Affine.txt --use-NN &
+                        cmd="WarpImageMultiTransform 3 ${ARRAY_S[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_S_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Affine.txt --use-NN"
+                        if [[ $CRKITCON = 1 ]] ; then
+                            singularity exec docker://antsx/ants:2.5.4 /bin/bash -c "$cmd" &
+                        else $cmd
+                        fi
                     elif [[ ! -f "${ARRAY_S[$tcount]}" ]] ; then
                         echo "No label file for ${ARRAY_T_NAME[$tcount]}"
                     else
@@ -431,7 +444,7 @@ for lsuffix in $AllLabs ; do
             # Run segmenation
             if [ ! -e ${OutSeg} ] ; then
                 echo "${OutSeg} not found. Processing..."
-                singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/bin/crlProbabilisticGMMSTAPLE -S "$outdir"/"$name"/log/labels_for_${OutPre2}.txt -T ${image} -I "$outdir"/"$name"/log/atlas_for_${OutPre2}.txt -O ${OutSeg} -x 16 -y 16 -z 16 -X 1 -Y 1 -Z 1 -p ${NThreads}"
+                ${REPO}/bin/crlProbabilisticGMMSTAPLE -S "$outdir"/"$name"/log/labels_for_${OutPre2}.txt -T ${image} -I "$outdir"/"$name"/log/atlas_for_${OutPre2}.txt -O ${OutSeg} -x 16 -y 16 -z 16 -X 1 -Y 1 -Z 1 -p ${NThreads}
             else echo "${OutSeg} already exists. Skipping..."
             fi
 
@@ -453,7 +466,11 @@ for lsuffix in $AllLabs ; do
                     echo "Partial volume correction not found. Running..."
                     if [[ ! -d ${outdir}/${name}/PVC ]] ; then mkdir -v ${outdir}/${name}/PVC ; fi
                     echo "Iteration one"
-                    singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/bin/crlCorrectFetalPartialVoluming ${image} ${OutSeg} ${OutPVC} 0.1"
+                    cmd="${REPO}/bin/crlCorrectFetalPartialVoluming ${image} ${OutSeg} ${OutPVC} 0.1"
+                    if [[ $CRKITCON = 1 ]] ; then
+                        singularity exec docker://arfentul/crkit:latest /bin/bash -c "$cmd"
+                    else $cmd
+                    fi
                     echo "We're only doing one iteration currently"
     #				echo "Iteration two:"
     #				$PVC ${image} ${corIt1} ${corIt2} 0.5 0.2 0
@@ -462,8 +479,13 @@ for lsuffix in $AllLabs ; do
                     
                 # A check to compare output of PVC and confirm that is is decreasing CP volume as intended
                 echo "Checking PVC output..."
-                BEFORE=`singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/crlComputeVolume ${OutSeg} ${LCP}`
-                AFTER=`singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/crlComputeVolume ${OutPVC} ${LCP}`
+                if [[ $CRKITCON = 1 ]] ; then
+                    BEFORE=`singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/crlComputeVolume ${OutSeg} ${LCP}`
+                    AFTER=`singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/crlComputeVolume ${OutPVC} ${LCP}`
+                else
+                    BEFORE=`${REPO}/crlComputeVolume ${OutSeg} ${LCP}`
+                    AFTER=`${REPO}/crlComputeVolume ${OutPVC} ${LCP}`
+                fi
                 declare -a EARRAY
                 if (( $(echo "scale=2 ; 100-(${AFTER}/${BEFORE})*100 < 2" | bc -l) )) ; then
                     echo "  FAILURE: Problem detected. Change from SEG to PVC-it1 was less than 2%"
@@ -519,14 +541,21 @@ while read line; do
             CPnone="${calc}/CPnone.nii.gz"
             CPparc="${calc}/CPparc.nii.gz"
             parcOUT="${calc}/${sub}"
-            # Create CP mask from GEPZ
-            singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlRelabelImages $parc $parc "112 113" "1 1" ${CPmask} 0"
-            # Create no-CP seg from GEPZ
-            singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlRelabelImages $parc $parc "112 113" "0 0" ${CPnone}"
-            # Multiply region by CP
-            singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlImageAlgebra ${CPmask} multiply $REGION ${CPparc}"
-            # Add parcellated CP back to full segmentation
-            singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlImageAlgebra ${CPnone} add ${CPparc} ${parcOUT}"
+            if [[ $CRKITCON = 1 ]] ; then
+                # Create CP mask from GEPZ
+                singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlRelabelImages $parc $parc "112 113" "1 1" ${CPmask} 0"
+                # Create no-CP seg from GEPZ
+                singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlRelabelImages $parc $parc "112 113" "0 0" ${CPnone}"
+                # Multiply region by CP
+                singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlImageAlgebra ${CPmask} multiply $REGION ${CPparc}"
+                # Add parcellated CP back to full segmentation
+                singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlImageAlgebra ${CPnone} add ${CPparc} ${parcOUT}"
+            else
+                crlRelabelImages $parc $parc "112 113" "1 1" ${CPmask} 0
+                crlRelabelImages $parc $parc "112 113" "0 0" ${CPnone}
+                crlImageAlgebra ${CPmask} multiply $REGION ${CPparc}
+                crlImageAlgebra ${CPnone} add ${CPparc} ${parcOUT}
+            fi
             echo "Output: ${parcOUT}"
 
             # Remove temp files

@@ -9,11 +9,16 @@ Segmentation[^STAPLE] is performed using Probabilistic GMM STAPLE available in t
 
 
 ### Dependencies
+Either:
 * CRKIT: https://www.nitrc.org/projects/staple
 * ANTs[^ANTS] 
+or
+* Apptainer (runs CRKIT and ANTs containers)
 
 ### Pipeline script usage
-* First rigidly register T2-weighted reconstructions to CRL atlas space with your registration tool of choice.
+* For better results, input T2 reconstructions should first be rigidly registered to CRL atlas space
+* Configure `config.sh` to point to the directory with your template or reference images (CRLMASREF environment variable)
+* Verify tlist.txt lists your template files relative to CRLMASREF
 
 Command:
 `sh MAS-pipeline.sh [Imagelist] [OutputDir] [MaxThreads]`<br>
@@ -40,7 +45,7 @@ Download CRKit, including STAPLE and other image maniuplation binaries utilized 
 https://www.nitrc.org/projects/staple
 
 There's also a Docker container available with CRKit installed:
-https://github.com/sergeicu/crkit-docker
+https://github.com/arfentul/crkit
 Your mileage may vary; in its current state not all relevant binaries compile properly
 
 ### License/Data Use Agreement
