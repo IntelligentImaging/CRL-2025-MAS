@@ -192,13 +192,7 @@ if [ -n $OutputPrefix] ; then
 fi
 
 # Check dependencies
-depchk ANTS
-depchk $SEG
-if [[ $PartialVolumeCorrection == "ON" ]] ; then depchk $PVC ; fi
-depchk $VOL
-depchk $MATH
-
-
+depchk singularity
 
 # Begin 'for loop' for each atlas segmentation scheme
 # default labels are specified at top of script
@@ -312,7 +306,8 @@ for lsuffix in $AllLabs ; do
                             echo "ANTS register ${ARRAY_T_NAME[$tcount]} to ${name}"
                         # Registration command
                         # This produces the "case123Warp.nii.gz", "case123InverseWarp.nii.gz", and "case123Affine.txt" files
-                        ANTS 3 -m PR[${image}, ${ARRAY_T[$tcount]},1,2] -o ${outdir}/${name}/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -r Gauss[3,0] --affine-metric-type MI -i 100x100x20 -t SyN[0.4] &
+                        singularity exec docker://antsx/ants:2.5.4 /bin/bash -c "ANTS 3 -m PR[${image}, ${ARRAY_T[$tcount]},1,2] -o ${outdir}/${name}/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -r Gauss[3,0] --affine-metric-type MI -i 100x100x20 -t SyN[0.4]" &
+                        #ANTS 3 -m PR[${image}, ${ARRAY_T[$tcount]},1,2] -o ${outdir}/${name}/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -r Gauss[3,0] --affine-metric-type MI -i 100x100x20 -t SyN[0.4] &
                     else
                         echo "Found transform for ${ARRAY_T_NAME[$tcount]} to ${name}. Skipping..."
                     fi
@@ -337,7 +332,8 @@ for lsuffix in $AllLabs ; do
                     if [[ ! -f "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz ]]; then
                         echo "Applying transform: ${ARRAY_T[$tcount]} to ${name}..."
                         # This produces the warped grayscale e.g. "template123_to_case123.nii.gz"
-                        WarpImageMultiTransform 3 ${ARRAY_T[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Affine.txt &
+                        singularity exec docker://antsx/ants:2.5.4 /bin/bash -c "WarpImageMultiTransform 3 ${ARRAY_T[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Affine.txt" &
+                        #WarpImageMultiTransform 3 ${ARRAY_T[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Affine.txt &
                     else
                         echo "Atlas has been transformed. Skipping"
                     fi
@@ -361,7 +357,8 @@ for lsuffix in $AllLabs ; do
                     if [[ ! -f "$outdir"/"$name"/template_rT/r${ARRAY_S_NAME[$tcount]}_to_${name}.nii.gz && -f "${ARRAY_S[$tcount]}" ]]; then
                         echo "Transforming ${ARRAY_S[$tcount]} to ${name}"
                         # This produces the warped parcellation e.g. "template123parc_to_case123.nii.gz"
-                        WarpImageMultiTransform 3 ${ARRAY_S[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_S_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Affine.txt --use-NN &
+                        singularity exec docker://antsx/ants:2.5.4 /bin/bash -c "WarpImageMultiTransform 3 ${ARRAY_S[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_S_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Affine.txt --use-NN" &
+                        #WarpImageMultiTransform 3 ${ARRAY_S[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_S_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Affine.txt --use-NN &
                     elif [[ ! -f "${ARRAY_S[$tcount]}" ]] ; then
                         echo "No label file for ${ARRAY_T_NAME[$tcount]}"
                     else
@@ -434,7 +431,7 @@ for lsuffix in $AllLabs ; do
             # Run segmenation
             if [ ! -e ${OutSeg} ] ; then
                 echo "${OutSeg} not found. Processing..."
-                $SEG -S "$outdir"/"$name"/log/labels_for_${OutPre2}.txt -T ${image} -I "$outdir"/"$name"/log/atlas_for_${OutPre2}.txt -O ${OutSeg} -x 16 -y 16 -z 16 -X 1 -Y 1 -Z 1 -p ${NThreads}
+                singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/bin/crlProbabilisticGMMSTAPLE -S "$outdir"/"$name"/log/labels_for_${OutPre2}.txt -T ${image} -I "$outdir"/"$name"/log/atlas_for_${OutPre2}.txt -O ${OutSeg} -x 16 -y 16 -z 16 -X 1 -Y 1 -Z 1 -p ${NThreads}"
             else echo "${OutSeg} already exists. Skipping..."
             fi
 
@@ -454,9 +451,9 @@ for lsuffix in $AllLabs ; do
                 # Run PVC
                 if [[ ! -e ${OutPVC} ]] ; then
                     echo "Partial volume correction not found. Running..."
-                    if [[ ! -d ""$outdir"/"$name"/PVC" ]]; then mkdir -v ""$outdir"/"$name"/PVC"; fi
+                    if [[ ! -d ${outdir}/${name}/PVC ]] ; then mkdir -v ${outdir}/${name}/PVC ; fi
                     echo "Iteration one"
-                    $PVC ${image} ${OutSeg} ${OutPVC} 0.1
+                    singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/bin/crlCorrectFetalPartialVoluming ${image} ${OutSeg} ${OutPVC} 0.1"
                     echo "We're only doing one iteration currently"
     #				echo "Iteration two:"
     #				$PVC ${image} ${corIt1} ${corIt2} 0.5 0.2 0
@@ -465,8 +462,8 @@ for lsuffix in $AllLabs ; do
                     
                 # A check to compare output of PVC and confirm that is is decreasing CP volume as intended
                 echo "Checking PVC output..."
-                BEFORE=`${VOL} ${OutSeg} ${LCP}`
-                AFTER=`${VOL} ${OutPVC} ${LCP}`
+                BEFORE=`singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/crlComputeVolume ${OutSeg} ${LCP}`
+                AFTER=`singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/crlComputeVolume ${OutPVC} ${LCP}`
                 declare -a EARRAY
                 if (( $(echo "scale=2 ; 100-(${AFTER}/${BEFORE})*100 < 2" | bc -l) )) ; then
                     echo "  FAILURE: Problem detected. Change from SEG to PVC-it1 was less than 2%"
@@ -523,13 +520,13 @@ while read line; do
             CPparc="${calc}/CPparc.nii.gz"
             parcOUT="${calc}/${sub}"
             # Create CP mask from GEPZ
-            ${CRKIT}/bin/crlRelabelImages $parc $parc "112 113" "1 1" ${CPmask} 0
+            singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlRelabelImages $parc $parc "112 113" "1 1" ${CPmask} 0"
             # Create no-CP seg from GEPZ
-            ${CRKIT}/bin/crlRelabelImages $parc $parc "112 113" "0 0" ${CPnone}
+            singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlRelabelImages $parc $parc "112 113" "0 0" ${CPnone}"
             # Multiply region by CP
-            $MATH ${CPmask} multiply $REGION ${CPparc}
+            singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlImageAlgebra ${CPmask} multiply $REGION ${CPparc}"
             # Add parcellated CP back to full segmentation
-            $MATH ${CPnone} add ${CPparc} ${parcOUT}
+            singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlImageAlgebra ${CPnone} add ${CPparc} ${parcOUT}"
             echo "Output: ${parcOUT}"
 
             # Remove temp files

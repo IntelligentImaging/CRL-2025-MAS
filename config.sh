@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Binary and atlas locations
-export FETALREF=/PATH/TO/CRL2025Atlas
-export CRKIT=/PATH/TO/crkit
+export FETALREF=/home/ch162835/work/dataverse/CRL2025Atlas/t2w
 
 # Default template image list
 # You can add additional atlas/reference images to the list
@@ -21,10 +20,3 @@ segmentation="ON"
 # # # # # # # # # # # # # # # # # # # # #
 LCP="112" # Cortical plate label used to test PVC output behavior
 # # # # # # # # # # # # # # # # # # # # #
-
-# Load CRKit
-source ${CRKIT}/bin/crkit-env.sh
-SEG="${CRKIT}/bin/crlProbabilisticGMMSTAPLE" # STAPLE binary
-MATH="${CRKIT}/bin/crlImageAlgebra" # Used for parcellating cortical plate
-PVC="${REPO}/bin/crlCorrectFetalPartialVoluming" # Partial Volume Correction binary
-VOL="${REPO}/bin/crlComputeVolume" # Used for checking PVC output
