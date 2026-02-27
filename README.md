@@ -12,8 +12,7 @@ Segmentation[^STAPLE] is performed using Probabilistic GMM STAPLE available in t
 Either:
 * CRKIT: https://www.nitrc.org/projects/staple
 * ANTs[^ANTS] 
-or
-* Apptainer (runs CRKIT and ANTs containers)
+* Apptainer (ANTs not needed if using container mode)
 
 ### Pipeline script usage
 * For better results, input T2 reconstructions should first be rigidly registered to CRL atlas space
@@ -49,7 +48,7 @@ https://github.com/arfentul/crkit
 Your mileage may vary; in its current state not all relevant binaries compile properly
 
 ### CRKIT installation notes
-As of 2/26/26, crlProbabilisticGMMSTAPLE is not found in the CRKIT NITRC listing or the CRKIT docker container build. Necessary libraries may also be missing. I was able to patch my local installation of CRKIT doing the following:
+As of 2/26/26, crlProbabilisticGMMSTAPLE is not found in the CRKIT docker container build, requiring installation of CRKIT from the NITRC listing. Necessary libraries may also be missing. I was able to patch my local installation of CRKIT doing the following:
 * Navigate to `crkit/bin/`
 * `g++ -shared -o libITKNLOPTOptimizers.so libITKNLOPTOptimizers.a`
 * `yum install nlopt`
