@@ -196,7 +196,7 @@ if [ -n $OutputPrefix] ; then
 fi
 
 # Check dependencies
-if [[ $CRKITCON = 1 ]] ; then thendepchk singularity ; fi
+if [[ $CRKITCON = 1 ]] ; then depchk singularity ; fi
 
 # Begin 'for loop' for each atlas segmentation scheme
 # default labels are specified at top of script
