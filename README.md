@@ -9,11 +9,16 @@ Segmentation[^STAPLE] is performed using Probabilistic GMM STAPLE available in t
 
 
 ### Dependencies
+Either:
 * CRKIT: https://www.nitrc.org/projects/staple
 * ANTs[^ANTS] 
+or
+* Apptainer (runs CRKIT and ANTs containers)
 
 ### Pipeline script usage
-* First rigidly register T2-weighted reconstructions to CRL atlas space with your registration tool of choice.
+* For better results, input T2 reconstructions should first be rigidly registered to CRL atlas space
+* Configure `config.sh` to point to the directory with your template or reference images (CRLMASREF environment variable)
+* Verify tlist.txt lists your template files relative to CRLMASREF
 
 Command:
 `sh MAS-pipeline.sh [Imagelist] [OutputDir] [MaxThreads]`<br>
@@ -40,8 +45,16 @@ Download CRKit, including STAPLE and other image maniuplation binaries utilized 
 https://www.nitrc.org/projects/staple
 
 There's also a Docker container available with CRKit installed:
-https://github.com/sergeicu/crkit-docker
+https://github.com/arfentul/crkit
 Your mileage may vary; in its current state not all relevant binaries compile properly
+
+### CRKIT installation notes
+As of 2/26/26, crlProbabilisticGMMSTAPLE is not found in the CRKIT NITRC listing or the CRKIT docker container build. Necessary libraries may also be missing. I was able to patch my local installation of CRKIT doing the following:
+* Navigate to `crkit/bin/`
+* `g++ -shared -o libITKNLOPTOptimizers.so libITKNLOPTOptimizers.a`
+* `yum install nlopt`
+* `ln -s /lib64/libnlopt_cxx.so.0 /lib64/libnlopt.so.0`
+* `g++ -shared -o libcrlCommon.so libcrlCommon.a`
 
 ### License/Data Use Agreement
 These files are published under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/<br>
