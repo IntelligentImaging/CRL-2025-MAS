@@ -48,6 +48,14 @@ There's also a Docker container available with CRKit installed:
 https://github.com/arfentul/crkit
 Your mileage may vary; in its current state not all relevant binaries compile properly
 
+### CRKIT installation notes
+As of 2/26/26, crlProbabilisticGMMSTAPLE is not found in the CRKIT NITRC listing or the CRKIT docker container build. Necessary libraries may also be missing. I was able to patch my local installation of CRKIT doing the following:
+* Navigate to `crkit/bin/`
+* `g++ -shared -o libITKNLOPTOptimizers.so libITKNLOPTOptimizers.a`
+* `yum install nlopt`
+* `ln -s /lib64/libnlopt_cxx.so.0 /lib64/libnlopt.so.0`
+* `g++ -shared -o libcrlCommon.so libcrlCommon.a`
+
 ### License/Data Use Agreement
 These files are published under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/<br>
 
