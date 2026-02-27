@@ -480,11 +480,11 @@ for lsuffix in $AllLabs ; do
                 # A check to compare output of PVC and confirm that is is decreasing CP volume as intended
                 echo "Checking PVC output..."
                 if [[ $CRKITCON = 1 ]] ; then
-                    BEFORE=`singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/crlComputeVolume ${OutSeg} ${LCP}`
-                    AFTER=`singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/crlComputeVolume ${OutPVC} ${LCP}`
+                    BEFORE=`singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/bin/crlComputeVolume ${OutSeg} ${LCP}"`
+                    AFTER=`singularity exec docker://arfentul/crkit:latest /bin/bash -c "${REPO}/bin/crlComputeVolume ${OutPVC} ${LCP}"`
                 else
-                    BEFORE=`${REPO}/crlComputeVolume ${OutSeg} ${LCP}`
-                    AFTER=`${REPO}/crlComputeVolume ${OutPVC} ${LCP}`
+                    BEFORE=`${REPO}/bin/crlComputeVolume ${OutSeg} ${LCP}`
+                    AFTER=`${REPO}/bin/crlComputeVolume ${OutPVC} ${LCP}`
                 fi
                 declare -a EARRAY
                 if (( $(echo "scale=2 ; 100-(${AFTER}/${BEFORE})*100 < 2" | bc -l) )) ; then
@@ -543,9 +543,9 @@ while read line; do
             parcOUT="${calc}/${sub}"
             if [[ $CRKITCON = 1 ]] ; then
                 # Create CP mask from GEPZ
-                singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlRelabelImages $parc $parc "112 113" "1 1" ${CPmask} 0"
+                singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlRelabelImages $parc $parc '112 113' '1 1' ${CPmask} 0"
                 # Create no-CP seg from GEPZ
-                singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlRelabelImages $parc $parc "112 113" "0 0" ${CPnone}"
+                singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlRelabelImages $parc $parc '112 113' '0 0' ${CPnone}"
                 # Multiply region by CP
                 singularity exec docker://arfentul/crkit:latest /bin/bash -c "crlImageAlgebra ${CPmask} multiply $REGION ${CPparc}"
                 # Add parcellated CP back to full segmentation
