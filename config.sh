@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Binary and atlas locations
-export CRLMASREF=/path/to/CRL2025Atlas/t2w
+# Atlas location
+export CRLMASREF=/path/to/your/CRL2025Atlas
+
+# CRKIT location
+CRKIT=/path/to/your/crkit-main
+source ${CRKIT}/bin/crkit-env.sh
 
 # Default template image list
 # You can add additional atlas/reference images to the list

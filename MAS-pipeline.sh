@@ -198,13 +198,15 @@ fi
 # Check dependencies
 if [[ $CRKITCON = 1 ]] ; then depchk singularity ; fi
 
+if [[ ! -n $CRKITCON ]] ; then depchk crlProbabilisticGMMSTAPLE ; fi
+
 # Begin 'for loop' for each atlas segmentation scheme
 # default labels are specified at top of script
 # defaults are GEPZ, GEPZ-WMZ, and regions
-for lsuffix in $AllLabs ; do
+for lscheme in $AllLabs ; do
     echo
-    echo "## Process registrations for all cases for atlas segmentation $lsuffix ##"
-    OutPre2="${OutputPrefix}-${lsuffix}"
+    echo "## Process registrations for all cases for atlas segmentation $lscheme ##"
+    OutPre2="${OutputPrefix}-${lscheme}"
 
     # Atlas registration loop for all input cases
     while read line; do 
@@ -213,7 +215,7 @@ for lsuffix in $AllLabs ; do
         echo "# Input case information #"
         echo "time : `date`"
         echo "image : ${image}"
-        echo "atlas seg: ${lsuffix}"
+        echo "atlas seg: ${lscheme}"
         if [[ ! -f ${image} ]] ; then
             echo "  ERROR: ${image} not found! Check path"
             echo "  Skipping to next input"
@@ -272,8 +274,8 @@ for lsuffix in $AllLabs ; do
                 ARRAY_T_NAME[$count]=${tmpName%%.*} # Chop off extension
 
                 # Get the atlas label name and filepath by adding label prefix 
-                ARRAY_S_NAME[$count]=`echo ${ARRAY_T_NAME[$count]} | sed -e "s,_atlas,_${lsuffix},"`
-                ARRAY_S[$count]=`readlink -f ${dirT}/${ARRAY_S_NAME[$count]}.nii.gz`
+                ARRAY_S_NAME[$count]="${lscheme}_${ARRAY_T_NAME[$count]}"
+                ARRAY_S[$count]=`readlink -f ${dirT}/${lscheme}_${ARRAY_T_NAME[$count]}.nii.gz`
 
                 ((count++))
             fi
@@ -306,8 +308,8 @@ for lsuffix in $AllLabs ; do
             while ( [ $npr -lt $NThreads ] ) ; do
                 if [ $tcount -lt $count ] ; then
                     # Skip if this reg is already done
-                    if [[ ! -e ${outdir}/${name}/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz ]] ; then
-                            echo "ANTS register ${ARRAY_T_NAME[$tcount]} to ${name}"
+                    if [[ ! -e ${outdir}/${name}/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}Warp.nii.gz || ! -e ${outdir}/${name}/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}Affine.txt ]] ; then
+                        echo "ANTS register ${ARRAY_T_NAME[$tcount]} to ${name}"
                         # Registration command
                         # This produces the "case123Warp.nii.gz", "case123InverseWarp.nii.gz", and "case123Affine.txt" files
                         cmd="ANTS 3 -m PR[${image}, ${ARRAY_T[$tcount]},1,2] -o ${outdir}/${name}/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -r Gauss[3,0] --affine-metric-type MI -i 100x100x20 -t SyN[0.4]"
@@ -339,7 +341,7 @@ for lsuffix in $AllLabs ; do
                     if [[ ! -f "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz ]]; then
                         echo "Applying transform: ${ARRAY_T[$tcount]} to ${name}..."
                         # This produces the warped grayscale e.g. "template123_to_case123.nii.gz"
-                        cmd="WarpImageMultiTransform 3 ${ARRAY_T[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}\Affine.txt"
+                        cmd="WarpImageMultiTransform 3 ${ARRAY_T[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_${name}Affine.txt"
                         if [[ $CRKITCON = 1 ]] ; then
                             singularity exec docker://antsx/ants:2.5.4 /bin/bash -c "$cmd" &
                         else $cmd &
@@ -367,7 +369,7 @@ for lsuffix in $AllLabs ; do
                     if [[ ! -f "$outdir"/"$name"/template_rT/r${ARRAY_S_NAME[$tcount]}_to_${name}.nii.gz && -f "${ARRAY_S[$tcount]}" ]]; then
                         echo "Transforming ${ARRAY_S[$tcount]} to ${name}"
                         # This produces the warped parcellation e.g. "template123parc_to_case123.nii.gz"
-                        cmd="WarpImageMultiTransform 3 ${ARRAY_S[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_S_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"\Affine.txt --use-NN"
+                        cmd="WarpImageMultiTransform 3 ${ARRAY_S[$tcount]} "$outdir"/"$name"/template_rT/r${ARRAY_S_NAME[$tcount]}_to_${name}.nii.gz -R ${image} "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"Warp.nii.gz "$outdir"/"$name"/template_rT/r${ARRAY_T_NAME[$tcount]}_to_"$name"Affine.txt --use-NN"
                         if [[ $CRKITCON = 1 ]] ; then
                             singularity exec docker://antsx/ants:2.5.4 /bin/bash -c "$cmd" &
                         else $cmd
@@ -444,7 +446,15 @@ for lsuffix in $AllLabs ; do
             # Run segmenation
             if [ ! -e ${OutSeg} ] ; then
                 echo "${OutSeg} not found. Processing..."
-                ${REPO}/bin/crlProbabilisticGMMSTAPLE -S "$outdir"/"$name"/log/labels_for_${OutPre2}.txt -T ${image} -I "$outdir"/"$name"/log/atlas_for_${OutPre2}.txt -O ${OutSeg} -x 16 -y 16 -z 16 -X 1 -Y 1 -Z 1 -p ${NThreads}
+                cmd="crlProbabilisticGMMSTAPLE -S "$outdir"/"$name"/log/labels_for_${OutPre2}.txt -T ${image} -I "$outdir"/"$name"/log/atlas_for_${OutPre2}.txt -O ${OutSeg} -x 16 -y 16 -z 16 -X 1 -Y 1 -Z 1 -p ${NThreads}"
+                if [[ ${CRKITCON} = 1 ]] ; then
+                    echo Running STAPLE, container mode
+                    singularity exec docker://arfentul/staple-crkit:latest /bin/bash -c "source /usr/src/crkit-main/bin/crkit-env.sh ; $cmd"
+                else
+                    echo Loading CRKIT env and running STAPLE
+                    source ${CRKIT}/bin/crkit-env.sh
+                    ${CRKIT}/bin/${cmd}
+                fi
             else echo "${OutSeg} already exists. Skipping..."
             fi
 
