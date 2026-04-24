@@ -26,7 +26,7 @@ show_help () {
 cat << EOF
     ----------------------------------------------------------
     Incorrect arguments supplied!
-    Usage: sh ${0} [-h] [-a AtlasList.txt -l AtlasLabelsPrefix] [-p OutputSegPrefix] [-k] -- [Imagelist] [OutputDir] [MaxThreads]
+    Usage: sh ${0} [-h] [-a AtlasList.txt -l AtlasLabelsPrefix] [-p OutputSegPrefix] [-k] [--noPVC] -- [Imagelist] [OutputDir] [MaxThreads]
     
         -h      display this help and exit
         -a      supply a structual ATLAS text list, formatted like:
@@ -38,6 +38,7 @@ cat << EOF
                     (defualt: all three of tissue, tissueWMZ, and regional)
         -p      specify output segmentation prefix (default: mas)
         -k      Use crkit container for CRL tools
+        --noPVC Do not perform Partial Volume Correction (for CP/WM border)
 
         [Imagelist] A text file with a list of input images formatted with one image per row and GA, i.e.
                     PATH/image01.nii.gz 32
