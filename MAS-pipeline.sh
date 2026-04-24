@@ -184,7 +184,7 @@ echo "Making case directory, setting some variables, starting template propagati
 mkdir -pv "$outdir"
 tools="${outdir}/tools" # we save some files here for archival reasons
 mkdir -pv "$tools"
-cp $0 -v --update=none ${tools}/seg.sh # make a copy of this script
+cp $0 -v ${tools}/seg.sh # make a copy of this script
 cp ${tlist} -v ${tools}/ # copy the input template list
 
 baseTLIST=`basename $tlist`
@@ -247,7 +247,7 @@ for lscheme in $AllLabs ; do
         # Registered images and labels go here
         mkdir -pv ${caseout}/template_rT
         # Make a copy of the input image
-        cp ${image} -v --update=none ${caseout}/
+        cp ${image} -v ${caseout}/
         
         # Reading atlas text files and selecting same, +1, and -1 week templates
         # and locating counterpart labels files
@@ -424,6 +424,7 @@ for lscheme in $AllLabs ; do
             GA=`echo $line | awk -F' ' '{ print $2 }'`
             name=`echo $(basename $image) | awk -F'.' '{ print $1 }'`
             echo "name : $name"
+            echo "age  : $GA"
         
             # Create output segmentation directory
             if [[ ! -d ""$outdir"/"$name"/seg" ]]; then mkdir -v ""$outdir"/"$name"/seg"; fi
