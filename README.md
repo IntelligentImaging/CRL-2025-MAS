@@ -12,7 +12,7 @@ Segmentation[^STAPLE] is performed using Probabilistic GMM STAPLE available in t
 Either:
 * CRKIT: https://www.nitrc.org/projects/staple
 * ANTs[^ANTS] 
-* Apptainer (ANTs not needed if using container mode)
+* Apptainer (CRKit and ANTs not needed if using container mode)
 
 ### Pipeline script usage
 * For better results, input T2 reconstructions should first be rigidly registered to CRL atlas space
@@ -20,11 +20,32 @@ Either:
 * Verify tlist.txt lists your template files relative to CRLMASREF
 
 Command:
-`sh MAS-pipeline.sh [Imagelist] [OutputDir] [MaxThreads]`<br>
+```
+Usage: sh ${0} [-h] [-a AtlasList.txt -l AtlasLabelsPrefix] [-p OutputSegPrefix] [-k] -- [Imagelist] [OutputDir] [MaxThreads]
+
+    -h      display this help and exit
+    -a      supply a structual ATLAS text list, formatted like:
+                PATH/t2w_GA30_atlas.nii.gz 30
+                PATH/t2w_GA31_atlas.nii.gz 31 ... etc
+    -l      [required if -a is specified] specify atlas label suffix. Label files need to be in the same directory as atlases and named like:
+                PATH/t2w_GA30_SUFFIX.nii.gz
+                PATH/t2w_GA31_SUFFIX.nii.gz ...etc
+                (defualt: all three of tissue, tissueWMZ, and regional)
+    -p      specify output segmentation prefix (default: mas)
+    -k      Use crkit container for CRL and ANTs programs
+
+    [Imagelist] A text file with a list of input images formatted with one image per row and GA, i.e.
+                PATH/image01.nii.gz 32
+                PATH/image02.nii.gz 29 ...etc
+    [OutputDir] Output directory for all working files and output segmentations
+    [MaxThreads] Maximum number of CPUs for running concurrent registrations and multi-threaded STAPLE (usually 8-12)
+```
   - Image list is a path list of atlas-space T2-weighted reconstructions and their gestational ages (GA, rounded to whole number weeks), for example:
   > /workdir/CASE001_t2w.nii.gz 34 <br>/workdir/CASE002_t2w.nii.gz 22<br>/workdir/CASE003_t2w.nii.gz 29<br>/workdir/CASE004_t2w.nii.gz 36
   - Default settings will generate both tissue and regional segmentations
   - Runs partial volume correction (PVC) on the *tissue segmentation* (--noPVC argument to disable) 
+
+  Note `-k` argument for Container Mode: uses Docker containers for CRL and ANTs tools whenever possible, using Apptainer/Singularity.
 
  Output directory organization:
  > OutputDir/CASE001_t2w <br>
@@ -43,7 +64,7 @@ You can change the output naming of the segmentation files with `-p YourOutputPr
 Download CRKit, including STAPLE and other image maniuplation binaries utilized in these scripts, from NITRC:
 https://www.nitrc.org/projects/staple
 
-There's also a Docker container available with CRKit installed:
+There is a Docker container available with CRKit installed:
 https://github.com/arfentul/crkit
 Your mileage may vary; in its current state not all relevant binaries compile properly
 
