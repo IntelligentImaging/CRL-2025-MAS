@@ -76,6 +76,23 @@ As of 2/26/26, crlProbabilisticGMMSTAPLE is not found in the CRKIT docker contai
 * `ln -s /lib64/libnlopt_cxx.so.0 /lib64/libnlopt.so.0`
 * `g++ -shared -o libcrlCommon.so libcrlCommon.a`
 
+## Usage of SVRTK Reconstruction pipeline scripts
+
+### Initial Reconstruction
+1. Place T2 stack images in reconstruction folder, named fetus_*.nii.gz
+1. Create a rough binary brain mask image, or run `sh fetal-bet.sh -d -s [recon directory]` 
+1. Generate SVRTK docker run script: `sh svrtk-gen.sh [recon directory]`
+1. Execute the run script `sh svrtk-exec.sh -s [recon directory]`
+
+### Normalization and atlas-space registration
+1. Bias correct and generate a precise brain mask for the reconstructed image`sh reg-prep.sh -n 1 -m [SVRTK_subjID.nii.gz]`
+1. Run the register script: `sh reg-fetal-recon.sh -m mask.nii.gz -n 2 -w [input]`
+1. Look through output registrations and choose the best one, then run: `sh choosereg.sh [best reg].nii.gz`<br>This copies the chosen registration as *atlas_t2final_CASEID.nii.gz* and throws out all other registration attempts.
+
+### Auto mopde
+Rather than run each pipeline step individually, you can run a single controller script which will run through all steps with default settings.
+* `sh process-svrtk.sh --all STUDY/CASEID/svrtk`
+
 ### License/Data Use Agreement
 These files are published under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/<br>
 
