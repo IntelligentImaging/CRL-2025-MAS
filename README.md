@@ -9,10 +9,10 @@ Segmentation[^STAPLE] is performed using Probabilistic GMM STAPLE available in t
 
 
 ### Dependencies
-Either:
 * CRKIT: https://www.nitrc.org/projects/staple
 * ANTs[^ANTS] 
 * Apptainer (CRKit and ANTs not needed if using container mode)
+* MRtrix3 (for T2 recon scripts)
 
 ### Pipeline script usage
 * For better results, input T2 reconstructions should first be rigidly registered to CRL atlas space
